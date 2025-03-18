@@ -105,6 +105,7 @@ def parse_roi_box_from_landmark(pts):
 
 
 def parse_roi_box_from_bbox(bbox):
+    print(bbox)
     left, top, right, bottom = bbox[:4]
     old_size = (right - left + bottom - top) / 2
     center_x = right - (right - left) / 2.0
