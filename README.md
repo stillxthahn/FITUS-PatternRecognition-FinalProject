@@ -1,10 +1,10 @@
 # Overview
-This repository contains an application that aligns, visualizes the process of reconstructing 3D biometric facial data, using Dlib python library, 3DDFA_V2 source, PyQT5, Pygame and PyTorch framework.
+This repository contains an application that aligns, visualizes the process of reconstructing 3D biometric facial data, using Facenet python library, 3DDFA_V2 source.
 
 The goal of this implementation is to be simple, easy to use, only plug and play. This implementation is a work in progress -- new features are currently being implemented.
 
 At the moment, you can easily:
- * Detect face / multi-face using Dlib
+ * Detect face / multi-face using Facenet
  * Build face landmark with 2 mode (Sparse/Dense) using TDDFA pre-trained model.
  * Generate 3D UV texture and save its on local directory 
  * Use image and webcam as input 
@@ -34,7 +34,7 @@ pip install -r requirements.txt
 `Step 4:` Build the Sim3DR dependency:
 ```
 cd Sim3DR
-sh ./build_sim3dr.sh
+python setup.py build_ext --inplace
 cd ..
 ```
 
@@ -45,11 +45,11 @@ python example.py
 ```
 The default input data is `./images/img1`, you can change your own input data by replacing line 17 of `main.py` ("images/img1.jpg").
 Output is stored at `./outputs/<yyyymmdd_hhmmss>`, which includes face landmark, face's texture and 3D face's obj file.
-<p align="center">
+<!-- <p align="center">
   <img src="imgs/landmark_vertex_obj.PNG" alt="samples" width="800px">
-</p>
+</p> -->
 
-## Useage
+<!-- ## Useage
 Run Gui version
 ```
 python gui_main.py
@@ -57,15 +57,8 @@ python gui_main.py
 Here's UI application
 <p align="center">
   <img src="imgs/UI_Apps.jpg" alt="samples" width="800px">
-</p>
+</p> -->
 
-## Video Guide  
-[![3D Face Reconstruction](https://img.youtube.com/vi/7ttYZXlQ44k/0.jpg)](https://youtu.be/7ttYZXlQ44k)
-## Acknowledgements
-* [Dlib](https://github.com/davisking/dlib)
-* Thanks for Jianzhu Guo's fantastic work [3DDFA_V2](https://github.com/cleardusk/3DDFA_V2)
-* [PyQt5](https://www.riverbankcomputing.com/software/pyqt/)
-* [Pygame](https://github.com/pygame/pygame)
 
-## Contact
-**To Duy An**: **toduyand@gmail.com**.
+
+
