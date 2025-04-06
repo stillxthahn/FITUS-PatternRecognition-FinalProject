@@ -14,7 +14,7 @@ from utils.functions import draw_landmarks
 
 # Path to the folder containing images
 IMG_FOLDER = "AFLW2000/"
-NAME_SAVE = "facenet"
+NAME_SAVE = ""
 PATH_SAVE = os.path.join("output", str(NAME_SAVE))
 os.makedirs(PATH_SAVE, exist_ok=True)
 
