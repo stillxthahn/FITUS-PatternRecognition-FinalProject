@@ -9,7 +9,6 @@ matplotlib
 scipy
 Cython
 cmake
-dlib
 PyQt5
 facenet-pytorch
 qt-thread-updater

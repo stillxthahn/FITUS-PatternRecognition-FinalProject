@@ -22,8 +22,8 @@ conda create -n 3dface python=3.8
 
 `Step 2:` Clone this repo (this may take some time as it is a little big)
 ```
-git clone <github_repo_link>
-cd <repo_name>
+git clone https://github.com/stillxthahn/FITUS-PatternRecognition-FinalProject.git
+cd FITUS-PatternRecognition-FinalProject
 ```
 
 `Step 3:` Install requirements and other dependencies:

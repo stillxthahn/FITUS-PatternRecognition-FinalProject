@@ -160,3 +160,6 @@ cython_debug/
 #.idea/
 
 AFLW2000/*
+
+DATA/*
+output/*
