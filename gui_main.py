@@ -11,7 +11,6 @@ import numpy as np
 import datetime
 from threading import Thread
 from qt_thread_updater import get_updater
-import dlib
 import yaml
 import shutil
 from TDDFA import TDDFA
@@ -19,7 +18,11 @@ from utils.uv import uv_tex
 from utils.serialization import ser_to_ply, ser_to_obj
 from utils.functions import draw_landmarks, load_and_resize
 from show3d.show3d import show_3dface
+from facenet_pytorch import MTCNN
+import torch
+import traceback
 
+from PIL import Image
 class MainGUI(QtWidgets.QDialog):
     def __init__(self):
         super(MainGUI, self).__init__()
@@ -33,6 +36,7 @@ class MainGUI(QtWidgets.QDialog):
         self.pushButton_Back.clicked.connect(self.back_image)
         self.pushButton_Save.clicked.connect(self.save_image)
         self.image_raw = None
+        self.image_raw_2 = None
         self.image_landmark = None
         self.image_uvtex = None
         self.image_pointcloud = None
@@ -42,7 +46,14 @@ class MainGUI(QtWidgets.QDialog):
         self.path_3dface = None
         self.check_saveimg =False
 
-        self.face_detector = dlib.get_frontal_face_detector()
+        # self.face_detector = dlib.get_frontal_face_detector()
+        device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+
+        self.face_detector =  MTCNN(
+                                    thresholds=[0.6, 0.7, 0.7], factor=0.709, post_process=True,
+                                    device=device,
+                                    keep_all=True
+                                )
         
         cfg = yaml.load(open("configs/mb1_120x120.yml"), Loader=yaml.SafeLoader)
         self.tddfa = TDDFA(**cfg)
@@ -89,20 +100,20 @@ class MainGUI(QtWidgets.QDialog):
         self.show_Text.clear()
     
     def infer_image(self):
-        image = self.image_raw
         self.pushButton_Capture.setEnabled(False)
         self.pushButton_OpenImg.setEnabled(False)
         self.pushButton_OpenCam.setEnabled(False)
-        
-        img_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        faces = self.face_detector(img_gray, 0)
-        bboxes =[]
-        for face in faces:
-            x1 = face.left()
-            y1 = face.top()
-            x2 = face.right()
-            y2 = face.bottom()
-            bboxes.append([x1, y1,x2 ,y2])
+
+        bboxes, fn_probs, fn_points = self.face_detector.detect(self.image_raw, landmarks=True)
+        # img_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        # faces = self.face_detector(img_gray, 0)
+        # bboxes =[]
+        # for face in faces:
+        #     x1 = face.left()
+        #     y1 = face.top()
+        #     x2 = face.right()
+        #     y2 = face.bottom()
+        #     bboxes.append([x1, y1,x2 ,y2])
         
         if len(bboxes) == 0:
             self.show_Text.addItems(["There are no faces !"])
@@ -110,18 +121,18 @@ class MainGUI(QtWidgets.QDialog):
             path_save =os.path.join(".cache")
             os.makedirs(path_save, exist_ok = True)
 
-            param_lst, roi_box_lst = self.tddfa(image, bboxes)
+            param_lst, roi_box_lst = self.tddfa(self.image_raw_2, bboxes)
             ver_landmark = self.tddfa.recon_vers(param_lst, roi_box_lst, dense_flag=False)
             path_imglandmark = path_save + '/data_landmarks.jpg'
-            draw_landmarks(image, ver_landmark, show_flag=False, dense_flag=False, wfp=path_imglandmark)
+            draw_landmarks(self.image_raw_2, ver_landmark, show_flag=False, dense_flag=False, wfp=path_imglandmark)
 
             ver_3d = self.tddfa.recon_vers(param_lst, roi_box_lst, dense_flag=True)
             
             wfp_obj = path_save + '/data3d.obj'
-            ser_to_obj(image, ver_3d, self.tddfa.tri, height=image.shape[0], wfp=wfp_obj)
+            ser_to_obj(self.image_raw_2, ver_3d, self.tddfa.tri, height=self.image_raw_2.shape[0], wfp=wfp_obj)
 
             path_textureface = path_save + '/data_textureface.jpg'
-            uv_tex(image, ver_3d, self.tddfa.tri, show_flag=False, wfp=path_textureface)
+            uv_tex(self.image_raw_2, ver_3d, self.tddfa.tri, show_flag=False, wfp=path_textureface)
             self.status_frame = 2
             self.image_landmark = cv2.imread(path_imglandmark)
             self.image_uvtex = cv2.imread(path_textureface)
@@ -194,7 +205,7 @@ class MainGUI(QtWidgets.QDialog):
             self.show_Text.addItems(["Input image"])
             self.pushButton_Back.setEnabled(False)
             self.pushButton_Next.setEnabled(True)
-            get_updater().call_latest(self.label_Image.setPixmap, self.img_cv_2_qt(self.image_raw))
+            get_updater().call_latest(self.label_Image.setPixmap, self.img_cv_2_qt(self.image_raw_2))
 
     def auto_camera(self):
         self.label_Image.clear()
@@ -227,7 +238,7 @@ class MainGUI(QtWidgets.QDialog):
                 self.capture = None
                 self.frame = None
             self.status_frame = 1
-            get_updater().call_latest(self.label_Image.setPixmap, self.img_cv_2_qt(self.image_raw))
+            get_updater().call_latest(self.label_Image.setPixmap, self.img_cv_2_qt(self.image_raw_2))
             self.pushButton_Confirm.setEnabled(True)
             self.pushButton_OpenCam.setEnabled(False)
             
@@ -242,17 +253,20 @@ class MainGUI(QtWidgets.QDialog):
             options = QtWidgets.QFileDialog.Options()
             img_file, _ = QtWidgets.QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "", "Images (*.png *.jpg *.jpeg *.bmp)", options=options)
             if img_file:
-                image= cv2.imread(img_file)
+                image= Image.open(img_file)
+                image2= cv2.imread(img_file)
                 self.image_raw = image.copy()
+                self.image_raw_2 = image2.copy()
                 self.status_frame = 1
-                get_updater().call_latest(self.label_Image.setPixmap, self.img_cv_2_qt(self.image_raw))
+                get_updater().call_latest(self.label_Image.setPixmap, self.img_cv_2_qt(self.image_raw_2))
             
                 self.pushButton_Confirm.setEnabled(True)
                 self.show_Text.addItems(["Succesfully Open Image !","Please choose Confirm"])
             else:
                 self.show_Text.addItems(["Invalid image \n Error !"])
-        except:
-            self.show_Text.addItems(["Invalid image \n Error !"])
+        except Exception as e:
+            self.show_Text.addItems(["Invalid image \n Error !", str(e)])
+            print(traceback.format_exc())
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
