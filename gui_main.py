@@ -233,6 +233,7 @@ class MainGUI(QtWidgets.QDialog):
         if self.frame is not None:
             self.show_Text.addItems(["Succesfully Capture image !", "Please choose Confirm"])
             self.image_raw = self.frame.copy()
+            self.image_raw_2 = self.frame.copy()
             if self.capture is not None:
                 self.capture.release()
                 self.capture = None
