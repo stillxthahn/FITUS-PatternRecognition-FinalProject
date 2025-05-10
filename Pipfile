@@ -1,0 +1,28 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+numpy = "==1.23.5"
+opencv-python = "*"
+opencv-contrib-python = "*"
+pyyaml = "*"
+onnx = "*"
+torchvision = "*"
+onnxruntime = "*"
+matplotlib = "*"
+scipy = "*"
+cython = "*"
+cmake = "*"
+pyqt5 = "*"
+facenet-pytorch = "*"
+qt-thread-updater = "*"
+pygame = "*"
+pyopengl = "*"
+pyopengl-accelerate = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.9"
