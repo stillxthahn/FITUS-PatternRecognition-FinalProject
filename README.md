@@ -43,21 +43,12 @@ Run example
 ```
 python example.py
 ```
-The default input data is `./images/img1`, you can change your own input data by replacing line 17 of `main.py` ("images/img1.jpg").
-Output is stored at `./outputs/<yyyymmdd_hhmmss>`, which includes face landmark, face's texture and 3D face's obj file.
-<!-- <p align="center">
-  <img src="imgs/landmark_vertex_obj.PNG" alt="samples" width="800px">
-</p> -->
-
-<!-- ## Useage
+## Useage
 Run Gui version
 ```
 python gui_main.py
 ```
-Here's UI application
-<p align="center">
-  <img src="imgs/UI_Apps.jpg" alt="samples" width="800px">
-</p> -->
+
 
 
 
