@@ -115,7 +115,7 @@ class MainGUI(QtWidgets.QDialog):
         #     y2 = face.bottom()
         #     bboxes.append([x1, y1,x2 ,y2])
         
-        if len(bboxes) == 0:
+        if bboxes is None or len(bboxes) == 0 :
             self.show_Text.addItems(["There are no faces !"])
         else:
             path_save =os.path.join(".cache")
